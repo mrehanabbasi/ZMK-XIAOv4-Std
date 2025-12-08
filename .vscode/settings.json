@@ -1,0 +1,5 @@
+{
+  "[json]": {
+    "editor.defaultFormatter": "msjsdiag.vscode-react-native",
+  }
+}
