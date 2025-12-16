@@ -142,7 +142,7 @@
 &kp LGUI   &kp Z   &kp X   &kp C     &kp V   &kp B     &kp N    &kp M   &kp COMMA  &kp DOT    &kp FSLH  &kp BSLH
                    &kp UP  &kp DOWN                                     &kp LEFT   &kp RIGHT
                      &kp LBKT   &kp RET  &kp DEL                &kp BSPC  &kp SPACE    &kp RBKT
-                     &kp PG_UP  &none    &kp PSCRN              &kp INS   &tok GAMING  &kp PG_DN
+                     &kp PG_UP  &none    &kp PSCRN              &kp INS   &tog GAMING  &kp PG_DN
             >;
         };
     };
