@@ -6,7 +6,6 @@
         display-name = "Default Layout";
         
         transform = <&default_transform>;
-        kscan = <&kscan0>;
         
         keys  //                 w   h    x    y     rot  rx   ry
             // Row 0 (F-keys row)
