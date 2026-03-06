@@ -99,8 +99,8 @@
 &kp ESC    &hml LGUI A  &hml LALT S  &hml LSHFT D  &hml LCTRL F  &kp G     &kp H    &hmr LCTRL J  &hmr RSHFT K  &hmr RALT L  &hmr RGUI SEMI  &kp SQT
 &kp LGUI   &kp Z        &kp X        &kp C         &kp V         &kp B     &kp N    &kp M         &kp COMMA     &kp DOT      &kp FSLH        &kp BSLH
                         &kp UP       &kp DOWN                                                     &kp LEFT      &kp RIGHT
-                            &kp LBKT   &lt MOUSE RET  &kp DEL                  &kp BSPC  &lt NAV SPACE  &kp RBKT
-                            &kp PG_UP  &mo MOUSE      &kp PSCRN                &kp INS   &tog GAMING    &kp PG_DN
+                            &kp LBKT   &lt MOUSE RET  &kp DEL                  &mt RCTRL BSPC  &lt NAV SPACE  &kp RBKT
+                            &kp PG_UP  &mo MOUSE      &kp PSCRN                &kp INS         &tog GAMING    &kp PG_DN
             >;
         };
 
