@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2020 The ZMK Contributors
+ * 34-key layout (3x5 + 2 thumbs per hand), expressed on the existing
+ * 76-position Dactyl matrix.
+ *
+ * The 34-key core is the common denominator of the Dactyl, a ZSA Voyager, a
+ * Ferris Sweep and a Corne, so this layout migrates to any of them unchanged.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -13,16 +17,45 @@
 #include <dt-bindings/zmk/pointing.h>
 
 // Layers
-#define BASE     0
-#define MOUSE    1
-#define NAV      2
-#define GRAPHITE 3
+#define BASE 0
+#define NUM  1
+#define FN   2
+#define SYM  3
+#define NAV  4
+#define UTIL 5
+
+/* Active key positions. Numbering follows the order of entries in the matrix
+ * transform; the 34 live positions are marked below.
+ *
+ *      .  .  .  .  .  .  |  .  .  .  .  .  .     F row      (all &none)
+ *      .  .  .  .  .  .  |  .  .  .  .  .  .     numbers    (all &none)
+ *      . 25 26 27 28 29  | 30 31 32 33 34  .     Q W E R T  /  Y U I O P
+ *      . 37 38 39 40 41  | 42 43 44 45 46  .     A S D F G  /  H J K L ;
+ *      . 49 50 51 52 53  | 54 55 56 57 58  .     Z X C V B  /  N M , . /
+ *               .  .     |  .  .                 arrows     (all &none)
+ *         . 65 66        | 67 68  .              thumbs, upper
+ *         .  .  .        |  .  .  .              thumbs, lower (all &none)
+ *
+ * Shift is at D=39 and K=44. Delete combo is , + . = 56 + 57.
+ */
+#define KEYS_L 25 26 27 28 29 37 38 39 40 41 49 50 51 52 53
+#define KEYS_R 30 31 32 33 34 42 43 44 45 46 54 55 56 57 58
+#define KEYS_T 65 66 67 68
 
 / {
     behaviors {
-        hrm: homerow_mods {
+        /* Home row mods: GUI / ALT / CTRL.
+         *
+         * flavor = tap-preferred on purpose. With "balanced", typing a word
+         * like "for" (press F, press O, release O before F) resolves to a
+         * hold and emits Ctrl+O. require-prior-idle-ms does not protect that
+         * case when F is the first keystroke after a pause, which is exactly
+         * how a Go for-loop gets typed. The cost is up to tapping-term-ms of
+         * latency before a modifier engages; that is the right trade here,
+         * since these mods are used after a pause rather than mid-burst. */
+        hrm_l: homerow_mods_left {
             compatible = "zmk,behavior-hold-tap";
-            label = "HOMEROW_MODS";
+            label = "HOMEROW_MODS_L";
             #binding-cells = <2>;
 
             flavor = "tap-preferred";
@@ -30,148 +63,296 @@
             tapping-term-ms = <200>;
             quick-tap-ms = <175>;
 
-            bindings = <&kp>, <&kp>;
-
-            /* hold-trigger-on-release; */
-        };
-
-
-        hrms: homerow_mods_shift {
-            compatible = "zmk,behavior-hold-tap";
-            label = "HOMEROW_MODS_SHIFT";
-            #binding-cells = <2>;
-
-            flavor = "balanced";
-            require-prior-idle-ms = <125>;
-            tapping-term-ms = <150>;
-            quick-tap-ms = <125>;
+            hold-trigger-key-positions = <KEYS_R KEYS_T>;
+            hold-trigger-on-release;
 
             bindings = <&kp>, <&kp>;
-
-            /* hold-trigger-on-release; */
         };
 
-        /* Overwriting existing &mt */
-        mt: mod_tap {
+        hrm_r: homerow_mods_right {
             compatible = "zmk,behavior-hold-tap";
+            label = "HOMEROW_MODS_R";
             #binding-cells = <2>;
-            label = "MOD_TAP";
 
-            flavor = "balanced";
+            flavor = "tap-preferred";
             require-prior-idle-ms = <150>;
             tapping-term-ms = <200>;
             quick-tap-ms = <175>;
 
-            bindings = <&kp>, <&kp>;
-
+            hold-trigger-key-positions = <KEYS_L KEYS_T>;
             hold-trigger-on-release;
+
+            bindings = <&kp>, <&kp>;
         };
 
-        /* Overwriting existing &lt */
+        /* Home row mods: SHIFT. No require-prior-idle-ms -- that setting
+         * always forces a tap, which is what was eating capitals mid-burst. */
+        hrms_l: homerow_mods_shift_left {
+            compatible = "zmk,behavior-hold-tap";
+            label = "HOMEROW_MODS_SHIFT_L";
+            #binding-cells = <2>;
+
+            flavor = "balanced";
+            tapping-term-ms = <200>;
+            quick-tap-ms = <150>;
+
+            hold-trigger-key-positions = <KEYS_R KEYS_T>;
+            hold-trigger-on-release;
+
+            bindings = <&kp>, <&kp>;
+        };
+
+        hrms_r: homerow_mods_shift_right {
+            compatible = "zmk,behavior-hold-tap";
+            label = "HOMEROW_MODS_SHIFT_R";
+            #binding-cells = <2>;
+
+            flavor = "balanced";
+            tapping-term-ms = <200>;
+            quick-tap-ms = <150>;
+
+            hold-trigger-key-positions = <KEYS_L KEYS_T>;
+            hold-trigger-on-release;
+
+            bindings = <&kp>, <&kp>;
+        };
+
+        /* Thumb layer-taps.
+         *
+         * quick-tap-ms is what makes tap-then-hold repeat work on Backspace
+         * and Space. It must be present -- the ZMK default is disabled. 220ms
+         * because ZMK measures the window press-to-press, not release-to-press,
+         * so the first tap's own duration eats into it.
+         *
+         * tap-preferred, so "delete a character then retype it" (press BSPC,
+         * press X, release X) cannot resolve to a hold and emit the SYM layer's
+         * X instead of a backspace.
+         *
+         * No require-prior-idle-ms: SYM must be reachable mid-word, e.g. while
+         * typing foo := bar{}.
+         *
+         * tapping-term-ms is the main knob here. Lower it toward 180 if the
+         * layers feel slow to engage; raise it if layers fire when you only
+         * meant to hold Space a beat too long.
+         */
         lt: layer_tap {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
             label = "LAYER_TAP";
+            display-name = "Layer-Tap";
+
             flavor = "tap-preferred";
             tapping-term-ms = <200>;
+            quick-tap-ms = <220>;
+
             bindings = <&mo>, <&kp>;
-            display-name = "Layer-Tap";
         };
+    };
 
-        /* Graphite mod-morphs: shift pairs that differ from QWERTY
+    macros {
+        /* := needs a macro; it is Shift+; followed by =, not a single keycode. */
+        go_assign: go_assign {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            label = "GO_ASSIGN";
+            wait-ms = <0>;
+            tap-ms = <5>;
+            bindings = <&kp COLON &kp EQUAL>;
+        };
+    };
+
+    combos {
+        compatible = "zmk,combos";
+
+        /* Delete without a layer hold, for the terminal (no Vim mode) and for
+         * prose. Middle + ring finger, one hand, so the other hand can stay on
+         * the mouse. "," and "." are never pressed simultaneously in real text,
+         * so a 40ms window is safe.
          *
-         * Graphite  unshifted → shifted   (QWERTY shifted)
-         *   '       '         → _         (")
-         *   ,       ,         → ?         (<)
-         *   -       -         → "         (_)
-         *   /       /         → <         (?)
-         */
-
-        gr_sqt: graphite_sqt {
-            compatible = "zmk,behavior-mod-morph";
-            #binding-cells = <0>;
-            bindings = <&kp SQT>, <&kp UNDERSCORE>;
-            mods = <(MOD_LSFT|MOD_RSFT)>;
+         * Note readline already gives forward-delete as Ctrl+D in the shell,
+         * though Ctrl+D on an empty prompt sends EOF and closes it -- which is
+         * presumably why a real Delete key is wanted. */
+        combo_del {
+            bindings = <&kp DEL>;
+            key-positions = <56 57>;
+            timeout-ms = <40>;
+            layers = <BASE>;
         };
 
-        gr_comma: graphite_comma {
-            compatible = "zmk,behavior-mod-morph";
-            #binding-cells = <0>;
-            bindings = <&kp COMMA>, <&kp QMARK>;
-            mods = <(MOD_LSFT|MOD_RSFT)>;
+        /* Both Shift keys together -> Caps Word, for SCREAMING_SNAKE env vars
+         * and const blocks. */
+        combo_caps_word {
+            bindings = <&caps_word>;
+            key-positions = <39 44>;
+            timeout-ms = <50>;
+            layers = <BASE>;
         };
+    };
 
-        gr_minus: graphite_minus {
-            compatible = "zmk,behavior-mod-morph";
-            #binding-cells = <0>;
-            bindings = <&kp MINUS>, <&kp DQT>;
-            mods = <(MOD_LSFT|MOD_RSFT)>;
-        };
+    conditional_layers {
+        compatible = "zmk,conditional-layers";
 
-        gr_fslh: graphite_fslh {
-            compatible = "zmk,behavior-mod-morph";
-            #binding-cells = <0>;
-            bindings = <&kp FSLH>, <&kp LT>;
-            mods = <(MOD_LSFT|MOD_RSFT)>;
+        /* Holding both outer thumbs (Enter/NUM + Space/NAV) reaches UTIL,
+         * so no thumb has to be spent on a rarely-used layer. */
+        util_layer {
+            if-layers = <NUM NAV>;
+            then-layer = <UTIL>;
         };
     };
 
     keymap {
         compatible = "zmk,keymap";
 
-        default_layer {
+        /* ------------------------------------------------------------------
+         * BASE
+         *
+         *   Q      W      E      R      T   |  Y      U      I      O      P
+         *   A/GUI  S/ALT  D/SHFT F/CTRL G   |  H      J/CTRL K/SHFT L/ALT  ;/GUI
+         *   Z      X      C      V      B   |  N      M      ,      .      /
+         *             ENT/NUM  TAB/FN       |  BSPC/SYM  SPC/NAV
+         *
+         * Tab is a layer-tap rather than a plain key; that is what pays for a
+         * dedicated F-key layer without resorting to a two-thumb chord.
+         * ------------------------------------------------------------------ */
+        base_layer {
             display-name = "base";
             bindings = <
-&kp F1     &kp F2       &kp F3       &kp F4         &kp F5        &kp F6    &kp F7   &kp F8        &kp F9         &kp F10      &kp F11         &kp F12
-&kp GRAVE  &kp N1       &kp N2       &kp N3         &kp N4        &kp N5    &kp N6   &kp N7        &kp N8         &kp N9       &kp N0          &kp EQUAL
-&kp TAB    &kp Q        &kp W        &kp E          &kp R         &kp T     &kp Y    &kp U         &kp I          &kp O        &kp P           &kp MINUS
-&kp ESC    &hrm LGUI A  &hrm LALT S  &hrms LSHFT D  &hrm LCTRL F  &kp G     &kp H    &hrm LCTRL J  &hrms RSHFT K  &hrm RALT L  &hrm RGUI SEMI  &kp SQT
-&kp LGUI   &kp Z        &kp X        &kp C          &kp V         &kp B     &kp N    &kp M         &kp COMMA      &kp DOT      &kp FSLH        &kp BSLH
-                        &kp UP       &kp DOWN                                                      &kp LEFT       &kp RIGHT
-                            &kp LBKT   &lt MOUSE RET  &kp DEL                  &mt RCTRL BSPC  &lt NAV SPACE  &kp RBKT
-                            &kp PG_UP  &mo MOUSE      &kp PSCRN                &kp INS         &tog GRAPHITE  &kp PG_DN
+&none  &none          &none          &none            &none           &none    &none  &none           &none            &none          &none             &none
+&none  &none          &none          &none            &none           &none    &none  &none           &none            &none          &none             &none
+&none  &kp Q          &kp W          &kp E            &kp R           &kp T    &kp Y  &kp U           &kp I            &kp O          &kp P             &none
+&none  &hrm_l LGUI A  &hrm_l LALT S  &hrms_l LSHFT D  &hrm_l LCTRL F  &kp G    &kp H  &hrm_r LCTRL J  &hrms_r RSHFT K  &hrm_r RALT L  &hrm_r RGUI SEMI  &none
+&none  &kp Z          &kp X          &kp C            &kp V           &kp B    &kp N  &kp M           &kp COMMA        &kp DOT        &kp FSLH          &none
+                      &none          &none                                                            &none            &none
+                             &none  &lt NUM RET  &lt FN TAB          &lt SYM BSPC  &lt NAV SPACE  &none
+                             &none  &none        &none               &none         &none          &none
             >;
         };
 
-        layer_1 {
-            display-name = "mouse";
+        /* ------------------------------------------------------------------
+         * NUM -- hold Enter (left outer thumb)
+         *
+         *   -    -    -    -    -   |  -   7  8  9  -
+         *   GUI  ALT  SHFT CTRL -   |  -   4  5  6  0
+         *   -    -    -    -    -   |  -   1  2  3  -
+         *
+         * Numpad on the right hand with plain mods on the left home row, which
+         * is what makes Super+N (Wayland workspaces), Ctrl+N and Alt+N work as
+         * ordinary cross-hand chords. A straight 1-0 row across both hands
+         * cannot do that, since GUI and the digits would collide on one hand.
+         * ------------------------------------------------------------------ */
+        num_layer {
+            display-name = "num";
             bindings = <
-&bt BT_CLR       &bt BT_SEL 0     &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &trans      &trans          &trans          &trans        &trans           &trans    &trans
-&rgb_ug RGB_TOG  &rgb_ug RGB_EFF  &trans        &trans        &trans        &trans      &kp F7          &kp F8          &kp F9        &kp F10          &kp F11   &kp F12
-&trans           &trans           &trans        &trans        &kp DEL       &trans      &msc SCRL_LEFT  &msc SCRL_DOWN  &msc SCRL_UP  &msc SCRL_RIGHT  &kp LBKT  &kp RBKT
-&tog NAV         &kp LC(A)        &kp LALT      &kp LSHFT     &kp LCTRL     &trans      &mmv MOVE_LEFT  &mmv MOVE_DOWN  &mmv MOVE_UP  &mmv MOVE_RIGHT  &kp LBRC  &kp RBRC
-&trans           &kp LC(Z)        &kp LC(X)     &kp LC(C)     &kp LC(V)     &kp LC(B)   &trans          &trans          &trans        &trans           &trans    &kp RGUI
-                                  &trans        &trans                                                                  &trans        &trans
-                                                &trans  &trans  &trans                      &mkp LCLK  &mkp RCLK  &trans
-                                                &trans  &trans  &trans                      &trans     &trans     &trans
+&trans  &trans     &trans     &trans      &trans      &trans    &trans  &trans   &trans   &trans   &trans   &trans
+&trans  &trans     &trans     &trans      &trans      &trans    &trans  &trans   &trans   &trans   &trans   &trans
+&trans  &none      &none      &none       &none       &none     &none   &kp N7   &kp N8   &kp N9   &none    &trans
+&trans  &kp LGUI   &kp LALT   &kp LSHFT   &kp LCTRL   &none     &none   &kp N4   &kp N5   &kp N6   &kp N0   &trans
+&trans  &none      &none      &none       &none       &none     &none   &kp N1   &kp N2   &kp N3   &none    &trans
+                   &trans     &trans                                             &trans   &trans
+                          &trans  &trans  &trans                  &trans  &trans  &trans
+                          &trans  &trans  &trans                  &trans  &trans  &trans
             >;
         };
 
-        layer_2 {
+        /* ------------------------------------------------------------------
+         * FN -- hold Tab (left inner thumb)
+         *
+         *   -    -    -    -    -   |  -   F7 F8 F9 F12
+         *   GUI  ALT  SHFT CTRL -   |  -   F4 F5 F6 F11
+         *   -    -    -    -    -   |  -   F1 F2 F3 F10
+         *
+         * Same 3x3 geometry as NUM, so F7 sits where 7 sits. Mods on the left
+         * home row make Shift+F7, Shift+F9, Shift+F10 and Ctrl+F5 clean
+         * cross-hand chords -- GoLand needs all of those.
+         * ------------------------------------------------------------------ */
+        fn_layer {
+            display-name = "fn";
+            bindings = <
+&trans  &trans     &trans     &trans      &trans      &trans    &trans  &trans   &trans   &trans   &trans    &trans
+&trans  &trans     &trans     &trans      &trans      &trans    &trans  &trans   &trans   &trans   &trans    &trans
+&trans  &none      &none      &none       &none       &none     &none   &kp F7   &kp F8   &kp F9   &kp F12   &trans
+&trans  &kp LGUI   &kp LALT   &kp LSHFT   &kp LCTRL   &none     &none   &kp F4   &kp F5   &kp F6   &kp F11   &trans
+&trans  &none      &none      &none       &none       &none     &none   &kp F1   &kp F2   &kp F3   &kp F10   &trans
+                   &trans     &trans                                             &trans   &trans
+                          &trans  &trans  &trans                  &trans  &trans  &trans
+                          &trans  &trans  &trans                  &trans  &trans  &trans
+            >;
+        };
+
+        /* ------------------------------------------------------------------
+         * SYM -- hold Backspace (right inner thumb)
+         *
+         *   !  @  #  $  %  |  ^  &  *  `  ~
+         *   [  ]  {  }  (  |  )  =  -  +  \
+         *   |  := <  >  _  |  :  '  "  ?  /
+         *
+         * Add &kp LT &kp MINUS as a macro here if you want a single-key <-
+         * for channel ops.
+         * ------------------------------------------------------------------ */
+        sym_layer {
+            display-name = "sym";
+            bindings = <
+&trans  &trans      &trans      &trans      &trans      &trans        &trans      &trans      &trans      &trans      &trans      &trans
+&trans  &trans      &trans      &trans      &trans      &trans        &trans      &trans      &trans      &trans      &trans      &trans
+&trans  &kp EXCL    &kp AT      &kp HASH    &kp DLLR    &kp PRCNT     &kp CARET   &kp AMPS    &kp STAR    &kp GRAVE   &kp TILDE   &trans
+&trans  &kp LBKT    &kp RBKT    &kp LBRC    &kp RBRC    &kp LPAR      &kp RPAR    &kp EQUAL   &kp MINUS   &kp PLUS    &kp BSLH    &trans
+&trans  &kp PIPE    &go_assign  &kp LT      &kp GT      &kp UNDERSCORE  &kp COLON &kp SQT     &kp DQT     &kp QMARK   &kp FSLH    &trans
+                    &trans      &trans                                                        &trans      &trans
+                          &trans  &trans  &trans                  &trans  &trans  &trans
+                          &trans  &trans  &trans                  &trans  &trans  &trans
+            >;
+        };
+
+        /* ------------------------------------------------------------------
+         * NAV -- hold Space (right outer thumb)
+         *
+         *   S-1  S-2  S-3  S-4  S-5  |  HOME   PGDN   PGUP   END     INS
+         *   GUI  ALT  SHFT CTRL ESC  |  LEFT   DOWN   UP     RIGHT   DEL
+         *   UNDO CUT  COPY PSTE REDO |  C-LEFT C-BSPC C-DEL  C-RIGHT -
+         *
+         * Arrows are Vim-correct on H J K L. Mods sit on the opposite hand, so
+         * Ctrl+Shift+Arrow selection is one hand each.
+         *
+         * Undo/cut/copy/paste land on their real QWERTY shortcut positions
+         * (Z X C V), with redo on B. Linux-only by your call, so plain LC().
+         *
+         * Delete is at the ";" position, right of the RIGHT arrow -- for prose
+         * editing you are already holding NAV.
+         *
+         * S-1..S-5 are Super+1..5 for Wayland workspaces: one thumb, one key.
+         * The generic Super+N path on the NUM layer still works for 6-0.
+         * ------------------------------------------------------------------ */
+        nav_layer {
             display-name = "nav";
             bindings = <
-&rgb_ug RGB_TOG  &trans        &trans    &trans    &trans     &trans      &trans  &trans     &trans     &trans    &trans    &trans
-&kp F1           &kp F2        &kp F3    &kp F4    &kp F5     &kp F6      &trans  &trans     &trans     &trans    &trans    &trans
-&trans           &trans        &kp HOME  &kp UP    &kp END    &kp INS     &trans  &trans     &trans     &trans    &trans    &trans
-&tog MOUSE       &kp C_VOL_UP  &kp LEFT  &kp DOWN  &kp RIGHT  &kp PG_UP   &trans  &kp LCTRL  &kp RSHFT  &kp RALT  &kp RGUI  &trans
-&kp LGUI         &kp C_VOL_DN  &trans    &trans    &trans     &kp PG_DN   &trans  &trans     &trans     &trans    &trans    &trans
-                               &trans    &trans                                   &trans     &trans
-                           &trans  &kp RET  &trans                             &trans  &trans  &trans
-                           &trans  &trans   &trans                             &trans  &trans  &trans
+&trans  &trans        &trans       &trans       &trans       &trans          &trans        &trans        &trans      &trans         &trans    &trans
+&trans  &trans        &trans       &trans       &trans       &trans          &trans        &trans        &trans      &trans         &trans    &trans
+&trans  &kp LG(N1)    &kp LG(N2)   &kp LG(N3)   &kp LG(N4)   &kp LG(N5)      &kp HOME      &kp PG_DN     &kp PG_UP   &kp END        &kp INS   &trans
+&trans  &kp LGUI      &kp LALT     &kp LSHFT    &kp LCTRL    &kp ESC         &kp LEFT      &kp DOWN      &kp UP      &kp RIGHT      &kp DEL   &trans
+&trans  &kp LC(Z)     &kp LC(X)    &kp LC(C)    &kp LC(V)    &kp LC(LS(Z))   &kp LC(LEFT)  &kp LC(BSPC)  &kp LC(DEL) &kp LC(RIGHT)  &none     &trans
+                      &trans       &trans                                                                &trans      &trans
+                          &trans  &trans  &trans                  &trans  &trans  &trans
+                          &trans  &trans  &trans                  &trans  &trans  &trans
             >;
         };
 
-        layer_3 {
-            display-name = "graphite";
+        /* ------------------------------------------------------------------
+         * UTIL -- hold NUM + NAV together (both outer thumbs)
+         *
+         * Bluetooth, RGB, flashing and mouse. Everything here is rare enough
+         * that a two-thumb chord is the right price.
+         * ------------------------------------------------------------------ */
+        util_layer {
+            display-name = "util";
             bindings = <
-&kp F1     &kp F2         &kp F3        &kp F4         &kp F5        &kp F6    &kp F7   &kp F8        &kp F9         &kp F10      &kp F11      &kp F12
-&kp GRAVE  &kp N1         &kp N2        &kp N3         &kp N4        &kp N5    &kp N6   &kp N7        &kp N8         &kp N9       &kp N0       &kp EQUAL
-&kp TAB    &kp B          &kp L         &kp D          &kp W         &kp Z     &gr_sqt  &kp F         &kp O          &kp U        &kp J        &kp SEMI
-&kp ESC    &hrm LGUI N    &hrm LALT R   &hrms LSHFT T  &hrm LCTRL S  &kp G     &kp Y    &hrm LCTRL H  &hrms RSHFT A  &hrm RALT E  &hrm RGUI I  &gr_comma
-&kp LGUI   &kp Q          &kp X         &kp M          &kp C         &kp V     &kp K    &kp P         &kp DOT        &gr_minus    &gr_fslh     &kp BSLH
-                          &kp UP        &kp DOWN                                                      &kp LEFT       &kp RIGHT
-                              &kp LBKT   &lt MOUSE RET  &kp DEL                      &mt RCTRL BSPC  &lt NAV SPACE  &kp RBKT
-                              &kp PG_UP  &none          &kp PSCRN                    &kp INS         &tog GRAPHITE  &kp PG_DN
+&trans  &trans            &trans            &trans          &trans          &trans        &trans           &trans           &trans         &trans            &trans      &trans
+&trans  &trans            &trans            &trans          &trans          &trans        &trans           &trans           &trans         &trans            &trans      &trans
+&trans  &bt BT_SEL 0      &bt BT_SEL 1      &bt BT_SEL 2    &bt BT_SEL 3    &bt BT_CLR    &msc SCRL_LEFT   &msc SCRL_DOWN   &msc SCRL_UP   &msc SCRL_RIGHT   &kp PSCRN   &trans
+&trans  &rgb_ug RGB_TOG   &rgb_ug RGB_EFF   &none           &none           &none         &mmv MOVE_LEFT   &mmv MOVE_DOWN   &mmv MOVE_UP   &mmv MOVE_RIGHT   &none       &trans
+&trans  &sys_reset        &bootloader       &none           &none           &none         &mkp LCLK        &mkp MCLK        &mkp RCLK      &none             &none       &trans
+                          &trans            &trans                                                                          &trans         &trans
+                          &trans  &trans  &trans                  &trans  &trans  &trans
+                          &trans  &trans  &trans                  &trans  &trans  &trans
             >;
         };
     };
