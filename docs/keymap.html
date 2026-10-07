@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Split Keyboard Keymap &mdash; 34 keys</title>
+<style>
+/* ---------------------------------------------------------------
+   Catppuccin Mocha
+   --------------------------------------------------------------- */
+:root {
+  --base:#1e1e2e; --mantle:#181825; --crust:#11111b;
+  --surface0:#313244; --surface1:#45475a; --surface2:#585b70;
+  --overlay0:#6c7086; --overlay1:#7f849c; --overlay2:#9399b2;
+  --subtext0:#a6adc8; --subtext1:#bac2de; --text:#cdd6f4;
+  --lavender:#b4befe; --blue:#89b4fa; --sapphire:#74c7ec; --sky:#89dceb;
+  --teal:#94e2d5; --green:#a6e3a1; --yellow:#f9e2af; --peach:#fab387;
+  --maroon:#eba0ac; --red:#f38ba8; --mauve:#cba6f7; --pink:#f5c2e7;
+
+  /* semantic */
+  --gui:var(--mauve); --alt:var(--peach); --shift:var(--yellow); --ctrl:var(--sky);
+}
+
+@page { size: A4 portrait; margin: 7mm; }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { background: var(--crust); }
+
+body {
+  font-family: "DejaVu Sans", "Liberation Sans", "Helvetica Neue", Arial, sans-serif;
+  background: var(--base);
+  color: var(--text);
+  width: 196mm;
+  min-height: 283mm;
+  margin: 0 auto;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3.4mm;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ---------------------------------------------------------------
+   Header
+   --------------------------------------------------------------- */
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  border-bottom: 0.5pt solid var(--surface0);
+  padding-bottom: 2.2mm;
+}
+.head h1 {
+  font-size: 14pt;
+  font-weight: 700;
+  letter-spacing: 0.055em;
+  line-height: 1;
+  color: var(--text);
+}
+.head .sub {
+  margin-top: 1.1mm;
+  font-size: 6.6pt;
+  letter-spacing: 0.1em;
+  color: var(--subtext0);
+}
+.head .meta { text-align: right; line-height: 1.6; flex: 0 0 auto; }
+.head .meta .a { font-size: 6pt; font-weight: 700; letter-spacing: 0.06em; color: var(--lavender); }
+.head .meta .b { font-size: 5.6pt; letter-spacing: 0.06em; color: var(--overlay2); }
+.head .meta .c { font-size: 5.8pt; color: var(--overlay1); font-family: "DejaVu Sans Mono", monospace; }
+.head > div:first-child { flex: 1 1 auto; min-width: 0; }
+.head .meta { flex: 0 0 auto; padding-left: 6mm; }
+
+/* ---------------------------------------------------------------
+   Section titles
+   --------------------------------------------------------------- */
+.sect {
+  display: flex;
+  align-items: baseline;
+  gap: 3mm;
+  margin-bottom: 1.7mm;
+}
+.sect h2 {
+  font-size: 7pt;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--subtext1);
+}
+.sect p { font-size: 6pt; color: var(--overlay1); letter-spacing: 0.01em; }
+
+/* ---------------------------------------------------------------
+   Access band
+   --------------------------------------------------------------- */
+.access { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2.6mm; }
+
+.acard {
+  background: var(--mantle);
+  border: 0.5pt solid color-mix(in srgb, var(--accent) 26%, var(--surface0));
+  border-radius: 1.5mm;
+  border-top: 1.1mm solid var(--accent);
+  padding: 2.6mm 1.6mm 2.8mm;
+  text-align: center;
+}
+.acard .ln {
+  font-size: 11pt;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  line-height: 1;
+}
+.acard .hold {
+  margin-top: 1.5mm;
+  font-size: 4.8pt;
+  font-weight: 700;
+  letter-spacing: 0.17em;
+  color: var(--overlay1);
+}
+.acard .chip {
+  display: inline-block;
+  margin-top: 0.9mm;
+  padding: 0.9mm 2.4mm;
+  font-size: 6.6pt;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  border-radius: 1mm;
+  background: color-mix(in srgb, var(--accent) 20%, var(--surface0));
+  border: 0.5pt solid color-mix(in srgb, var(--accent) 40%, var(--surface1));
+  color: var(--text);
+  white-space: nowrap;
+}
+.acard .tap { margin-top: 1.5mm; font-size: 5.3pt; color: var(--subtext0); }
+.acard .where { margin-top: 0.5mm; font-size: 4.6pt; color: var(--overlay0); }
+
+/* ---------------------------------------------------------------
+   Layer grid
+   --------------------------------------------------------------- */
+.layers { display: grid; grid-template-columns: 1fr 1fr; gap: 3.6mm; }
+
+.layer {
+  position: relative;
+  background: var(--mantle);
+  border: 0.5pt solid color-mix(in srgb, var(--accent) 20%, var(--surface0));
+  border-left: 0.9mm solid var(--accent);
+  border-radius: 1.6mm;
+  padding: 2.8mm 3mm 3mm;
+}
+.lhead { display: flex; align-items: center; gap: 1.8mm; margin-bottom: 2mm; }
+.lhead .badge {
+  width: 4.2mm; height: 4.2mm;
+  border-radius: 1mm;
+  background: color-mix(in srgb, var(--accent) 32%, var(--surface0));
+  border: 0.5pt solid var(--accent);
+  color: var(--accent);
+  font-size: 7pt; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.lhead .name {
+  font-size: 10.5pt; font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  line-height: 1;
+}
+.lhead .pill {
+  margin-left: auto;
+  padding: 0.8mm 2.2mm;
+  border-radius: 3mm;
+  font-size: 5.4pt; font-weight: 700;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  background: color-mix(in srgb, var(--accent) 13%, var(--mantle));
+  border: 0.5pt solid color-mix(in srgb, var(--accent) 42%, var(--surface0));
+  color: color-mix(in srgb, var(--accent) 80%, var(--text));
+}
+
+/* --- the board ------------------------------------------------- */
+.board { display: flex; flex-direction: column; gap: 1mm; }
+
+.row, .thumbs {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr) 4.4mm repeat(5, 1fr);
+  gap: 1mm;
+}
+.thumbs { margin-top: 2mm; }
+.gapcol { grid-column: 6; }
+
+.key {
+  position: relative;
+  height: 9.0mm;
+  border-radius: 0.8mm;
+  background: var(--surface0);
+  border: 0.4pt solid var(--surface1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.key .m {
+  font-size: 7.6pt;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text);
+  white-space: nowrap;
+}
+.key .m.sm  { font-size: 6.2pt; }
+.key .m.xs  { font-size: 5.4pt; }
+.key .m.ar  { font-size: 10pt; line-height: 0.8; }
+.key .s {
+  margin-top: 0.7mm;
+  font-size: 4.2pt;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  color: var(--overlay2);
+  white-space: nowrap;
+}
+.key.has-sub .m { margin-top: 0.5mm; }
+
+/* no binding */
+.key.none {
+  background: color-mix(in srgb, var(--mantle) 55%, var(--base));
+  border-color: color-mix(in srgb, var(--surface0) 50%, var(--mantle));
+}
+.key.none::after {
+  content: "";
+  width: 1.6mm; height: 0.4pt;
+  background: var(--overlay0);
+}
+
+/* tinted (home row mods on BASE, thumb targets) */
+.key.tint {
+  background: color-mix(in srgb, var(--kc) 22%, var(--surface0));
+  border-color: color-mix(in srgb, var(--kc) 34%, var(--surface1));
+}
+
+/* the thumb key you are holding to be on this layer */
+.key.held {
+  background: var(--accent);
+  border: 0.6pt solid var(--accent);
+  box-shadow: 0 0 0 0.35mm color-mix(in srgb, var(--accent) 28%, var(--mantle));
+}
+.key.held .m, .key.held .s { color: var(--crust); }
+
+/* a thumb key that is pass-through on this layer */
+.key.idle .m { color: var(--overlay1); font-weight: 400; }
+.key.idle { background: color-mix(in srgb, var(--surface0) 60%, var(--mantle)); }
+
+/* colour helpers */
+.c-text{color:var(--text)!important}      .c-green{color:var(--green)!important}
+.c-sapphire{color:var(--sapphire)!important} .c-peach{color:var(--peach)!important}
+.c-blue{color:var(--blue)!important}      .c-pink{color:var(--pink)!important}
+.c-red{color:var(--red)!important}        .c-teal{color:var(--teal)!important}
+.c-lav{color:var(--lavender)!important}   .c-mauve{color:var(--mauve)!important}
+.c-yellow{color:var(--yellow)!important}  .c-maroon{color:var(--maroon)!important}
+.c-sub{color:var(--subtext1)!important}   .c-sky{color:var(--sky)!important}
+.c-gui{color:var(--gui)!important}  .c-alt{color:var(--alt)!important}
+.c-shift{color:var(--shift)!important} .c-ctrl{color:var(--ctrl)!important}
+
+/* hand labels */
+.hands {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr) 4.4mm repeat(5, 1fr);
+  gap: 1mm;
+  margin-bottom: 0.6mm;
+}
+.hands span { font-size: 4.4pt;
+  font-size: 4.1pt; letter-spacing: 0.22em; color: var(--overlay0);
+  font-weight: 700;
+}
+.hands .l { grid-column: 1 / 6; }
+.hands .r { grid-column: 7 / 12; text-align: right; }
+
+/* ---------------------------------------------------------------
+   Notes
+   --------------------------------------------------------------- */
+.notes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4.5mm;
+  border-top: 0.5pt solid var(--surface0);
+  padding-top: 2.6mm;
+}
+.note h3 {
+  font-size: 6.3pt; font-weight: 700; letter-spacing: 0.17em;
+  color: var(--accent);
+  padding-bottom: 1mm;
+  border-bottom: 0.5pt solid color-mix(in srgb, var(--accent) 28%, var(--surface0));
+  margin-bottom: 1.6mm;
+}
+.note dl { display: flex; flex-direction: column; gap: 1.3mm; }
+.note div { font-size: 5.7pt; line-height: 1.5; color: var(--overlay2); }
+.note dt {
+  display: inline;
+  font-weight: 700;
+  color: var(--subtext1);
+}
+.note dd { display: inline; }
+.note code {
+  font-family: "DejaVu Sans Mono", monospace;
+  font-size: 5pt;
+  color: var(--subtext0);
+  background: var(--surface0);
+  padding: 0 0.6mm;
+  border-radius: 0.4mm;
+}
+
+/* ---------------------------------------------------------------
+   Legend
+   --------------------------------------------------------------- */
+.legend {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 5mm;
+  border-top: 0.5pt solid var(--surface0);
+  padding-top: 2mm;
+}
+.legend .item { display: flex; align-items: center; gap: 1.4mm; }
+.legend .item > .key { width: 7mm; height: 5mm; }
+.legend .item > .key .m { font-size: 4.6pt; }
+.legend .item > .key .s { font-size: 3.1pt; margin-top: 0.2mm; }
+.legend .item span { font-size: 5pt; color: var(--overlay1); }
+.legend .brand {
+  margin-left: auto;
+  font-size: 5pt; font-weight: 700; letter-spacing: 0.08em;
+  color: var(--mauve);
+}
+</style>
+</head>
+<body>
+
+<header class="head">
+  <div>
+    <h1>SPLIT KEYBOARD KEYMAP</h1>
+    <div class="sub">34 KEYS &nbsp;&middot;&nbsp; 3&times;5 + 2 THUMBS PER HAND &nbsp;&middot;&nbsp; 6 LAYERS</div>
+  </div>
+  <div class="meta">
+    <div class="a">ZMK &nbsp;&middot;&nbsp; SKREECUSTOM &nbsp;&middot;&nbsp; XIAO BLE</div>
+    <div class="b">PORTABLE TO VOYAGER / SWEEP / CORNE</div>
+    <div class="c">config/skreecustom.keymap</div>
+  </div>
+</header>
+
+<!-- ============================================================ -->
+<section>
+  <div class="sect">
+    <h2>HOW TO REACH EACH LAYER</h2>
+    <p>Every layer is one thumb away. Hold the thumb key to shift layer, tap it for the key printed on it.</p>
+  </div>
+  <div class="access">
+    <div class="acard" style="--accent:var(--green)">
+      <div class="ln">NUM</div>
+      <div class="hold">HOLD</div>
+      <div class="chip">ENT</div>
+      <div class="tap">tap = Enter</div>
+      <div class="where">left outer thumb</div>
+    </div>
+    <div class="acard" style="--accent:var(--sapphire)">
+      <div class="ln">FN</div>
+      <div class="hold">HOLD</div>
+      <div class="chip">TAB</div>
+      <div class="tap">tap = Tab</div>
+      <div class="where">left inner thumb</div>
+    </div>
+    <div class="acard" style="--accent:var(--peach)">
+      <div class="ln">SYM</div>
+      <div class="hold">HOLD</div>
+      <div class="chip">BSPC</div>
+      <div class="tap">tap = Backspace</div>
+      <div class="where">right inner thumb</div>
+    </div>
+    <div class="acard" style="--accent:var(--blue)">
+      <div class="ln">NAV</div>
+      <div class="hold">HOLD</div>
+      <div class="chip">SPC</div>
+      <div class="tap">tap = Space</div>
+      <div class="where">right outer thumb</div>
+    </div>
+    <div class="acard" style="--accent:var(--red)">
+      <div class="ln">UTIL</div>
+      <div class="hold">HOLD BOTH</div>
+      <div class="chip">ENT + SPC</div>
+      <div class="tap">NUM + NAV together</div>
+      <div class="where">conditional layer</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="layers">
+
+  <!-- ---------------- BASE ---------------- -->
+  <div class="layer" style="--accent:var(--lavender)">
+    <div class="lhead">
+      <div class="badge">0</div>
+      <div class="name">BASE</div>
+      <div class="pill">ALWAYS ACTIVE</div>
+    </div>
+    <div class="board">
+      <div class="hands"><span class="l">LEFT</span><span class="r">RIGHT</span></div>
+      <div class="row">
+        <div class="key"><span class="m">Q</span></div>
+        <div class="key"><span class="m">W</span></div>
+        <div class="key"><span class="m">E</span></div>
+        <div class="key"><span class="m">R</span></div>
+        <div class="key"><span class="m">T</span></div>
+        <div class="gapcol"></div>
+        <div class="key"><span class="m">Y</span></div>
+        <div class="key"><span class="m">U</span></div>
+        <div class="key"><span class="m">I</span></div>
+        <div class="key"><span class="m">O</span></div>
+        <div class="key"><span class="m">P</span></div>
+      </div>
+      <div class="row">
+        <div class="key tint has-sub" style="--kc:var(--gui)"><span class="m">A</span><span class="s c-gui">GUI</span></div>
+        <div class="key tint has-sub" style="--kc:var(--alt)"><span class="m">S</span><span class="s c-alt">ALT</span></div>
+        <div class="key tint has-sub" style="--kc:var(--shift)"><span class="m">D</span><span class="s c-shift">SHIFT</span></div>
+        <div class="key tint has-sub" style="--kc:var(--ctrl)"><span class="m">F</span><span class="s c-ctrl">CTRL</span></div>
+        <div class="key"><span class="m">G</span></div>
+        <div class="gapcol"></div>
+        <div class="key"><span class="m">H</span></div>
+        <div class="key tint has-sub" style="--kc:var(--ctrl)"><span class="m">J</span><span class="s c-ctrl">CTRL</span></div>
+        <div class="key tint has-sub" style="--kc:var(--shift)"><span class="m">K</span><span class="s c-shift">SHIFT</span></div>
+        <div class="key tint has-sub" style="--kc:var(--alt)"><span class="m">L</span><span class="s c-alt">ALT</span></div>
+        <div class="key tint has-sub" style="--kc:var(--gui)"><span class="m">;</span><span class="s c-gui">GUI</span></div>
+      </div>
+      <div class="row">
+        <div class="key"><span class="m">Z</span></div>
+        <div class="key"><span class="m">X</span></div>
+        <div class="key"><span class="m">C</span></div>
+        <div class="key"><span class="m">V</span></div>
+        <div class="key"><span class="m">B</span></div>
+        <div class="gapcol"></div>
+        <div class="key"><span class="m">N</span></div>
+        <div class="key"><span class="m">M</span></div>
+        <div class="key"><span class="m">,</span></div>
+        <div class="key"><span class="m">.</span></div>
+        <div class="key"><span class="m">/</span></div>
+      </div>
+      <div class="thumbs">
+        <div class="key tint has-sub" style="--kc:var(--green);grid-column:2/4"><span class="m sm">ENT</span><span class="s c-green">HOLD &rarr; NUM</span></div>
+        <div class="key tint has-sub" style="--kc:var(--sapphire);grid-column:4/6"><span class="m sm">TAB</span><span class="s c-sapphire">HOLD &rarr; FN</span></div>
+        <div class="key tint has-sub" style="--kc:var(--peach);grid-column:7/9"><span class="m sm">BSPC</span><span class="s c-peach">HOLD &rarr; SYM</span></div>
+        <div class="key tint has-sub" style="--kc:var(--blue);grid-column:9/11"><span class="m sm">SPC</span><span class="s c-blue">HOLD &rarr; NAV</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------------- NUM ---------------- -->
+  <div class="layer" style="--accent:var(--green)">
+    <div class="lhead">
+      <div class="badge">1</div>
+      <div class="name">NUM</div>
+      <div class="pill">HOLD&nbsp; ENT</div>
+    </div>
+    <div class="board">
+      <div class="hands"><span class="l">MODIFIERS</span><span class="r">NUMPAD</span></div>
+      <div class="row">
+        <div class="key none"></div><div class="key none"></div><div class="key none"></div>
+        <div class="key none"></div><div class="key none"></div>
+        <div class="gapcol"></div>
+        <div class="key none"></div>
+        <div class="key"><span class="m c-green">7</span></div>
+        <div class="key"><span class="m c-green">8</span></div>
+        <div class="key"><span class="m c-green">9</span></div>
+        <div class="key none"></div>
+      </div>
+      <div class="row">
+        <div class="key tint" style="--kc:var(--gui)"><span class="m sm c-gui">GUI</span></div>
+        <div class="key tint" style="--kc:var(--alt)"><span class="m sm c-alt">ALT</span></div>
+        <div class="key tint" style="--kc:var(--shift)"><span class="m xs c-shift">SHIFT</span></div>
+        <div class="key tint" style="--kc:var(--ctrl)"><span class="m sm c-ctrl">CTRL</span></div>
+        <div class="key none"></div>
+        <div class="gapcol"></div>
+        <div class="key none"></div>
+        <div class="key"><span class="m c-green">4</span></div>
+        <div class="key"><span class="m c-green">5</span></div>
+        <div class="key"><span class="m c-green">6</span></div>
+        <div class="key"><span class="m c-green">0</span></div>
+      </div>
+      <div class="row">
+        <div class="key none"></div><div class="key none"></div><div class="key none"></div>
+        <div class="key none"></div><div class="key none"></div>
+        <div class="gapcol"></div>
+        <div class="key none"></div>
+        <div class="key"><span class="m c-green">1</span></div>
+        <div class="key"><span class="m c-green">2</span></div>
+        <div class="key"><span class="m c-green">3</span></div>
+        <div class="key none"></div>
+      </div>
+      <div class="thumbs">
+        <div class="key held has-sub" style="grid-column:2/4"><span class="m sm">ENT</span><span class="s">HELD</span></div>
+        <div class="key idle" style="grid-column:4/6"><span class="m sm">TAB</span></div>
+        <div class="key idle" style="grid-column:7/9"><span class="m sm">BSPC</span></div>
+        <div class="key idle" style="grid-column:9/11"><span class="m sm">SPC</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------------- FN ---------------- -->
+  <div class="layer" style="--accent:var(--sapphire)">
+    <div class="lhead">
+      <div class="badge">2</div>
+      <div class="name">FN</div>
+      <div class="pill">HOLD&nbsp; TAB</div>
+    </div>
+    <div class="board">
+      <div class="hands"><span class="l">MODIFIERS</span><span class="r">F1 &ndash; F12</span></div>
+      <div class="row">
+        <div class="key none"></div><div class="key none"></div><div class="key none"></div>
+        <div class="key none"></div><div class="key none"></div>
+        <div class="gapcol"></div>
+        <div class="key none"></div>
+        <div class="key"><span class="m sm c-sapphire">F7</span></div>
+        <div class="key"><span class="m sm c-sapphire">F8</span></div>
+        <div class="key"><span class="m sm c-sapphire">F9</span></div>
+        <div class="key"><span class="m xs c-sapphire">F12</span></div>
+      </div>
+      <div class="row">
+        <div class="key tint" style="--kc:var(--gui)"><span class="m sm c-gui">GUI</span></div>
+        <div class="key tint" style="--kc:var(--alt)"><span class="m sm c-alt">ALT</span></div>
+        <div class="key tint" style="--kc:var(--shift)"><span class="m xs c-shift">SHIFT</span></div>
+        <div class="key tint" style="--kc:var(--ctrl)"><span class="m sm c-ctrl">CTRL</span></div>
+        <div class="key none"></div>
+        <div class="gapcol"></div>
+        <div class="key none"></div>
+        <div class="key"><span class="m sm c-sapphire">F4</span></div>
+        <div class="key"><span class="m sm c-sapphire">F5</span></div>
+        <div class="key"><span class="m sm c-sapphire">F6</span></div>
+        <div class="key"><span class="m xs c-sapphire">F11</span></div>
+      </div>
+      <div class="row">
+        <div class="key none"></div><div class="key none"></div><div class="key none"></div>
+        <div class="key none"></div><div class="key none"></div>
+        <div class="gapcol"></div>
+        <div class="key none"></div>
+        <div class="key"><span class="m sm c-sapphire">F1</span></div>
+        <div class="key"><span class="m sm c-sapphire">F2</span></div>
+        <div class="key"><span class="m sm c-sapphire">F3</span></div>
+        <div class="key"><span class="m xs c-sapphire">F10</span></div>
+      </div>
+      <div class="thumbs">
+        <div class="key idle" style="grid-column:2/4"><span class="m sm">ENT</span></div>
+        <div class="key held has-sub" style="grid-column:4/6"><span class="m sm">TAB</span><span class="s">HELD</span></div>
+        <div class="key idle" style="grid-column:7/9"><span class="m sm">BSPC</span></div>
+        <div class="key idle" style="grid-column:9/11"><span class="m sm">SPC</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------------- SYM ---------------- -->
+  <div class="layer" style="--accent:var(--peach)">
+    <div class="lhead">
+      <div class="badge">3</div>
+      <div class="name">SYM</div>
+      <div class="pill">HOLD&nbsp; BSPC</div>
+    </div>
+    <div class="board">
+      <div class="hands"><span class="l">SHIFTED ROW &middot; BRACKETS</span><span class="r">OPERATORS &middot; QUOTES</span></div>
+      <div class="row">
+        <div class="key"><span class="m c-peach">!</span></div>
+        <div class="key"><span class="m c-peach">@</span></div>
+        <div class="key"><span class="m c-peach">#</span></div>
+        <div class="key"><span class="m c-peach">$</span></div>
+        <div class="key"><span class="m c-peach">%</span></div>
+        <div class="gapcol"></div>
+        <div class="key"><span class="m c-peach">^</span></div>
+        <div class="key"><span class="m c-peach">&amp;</span></div>
+        <div class="key"><span class="m c-peach">*</span></div>
+        <div class="key"><span class="m c-peach">`</span></div>
+        <div class="key"><span class="m c-peach">~</span></div>
+      </div>
+      <div class="row">
+        <div class="key"><span class="m c-peach">[</span></div>
+        <div class="key"><span class="m c-peach">]</span></div>
+        <div class="key"><span class="m c-peach">{</span></div>
+        <div class="key"><span class="m c-peach">}</span></div>
+        <div class="key"><span class="m c-peach">(</span></div>
+        <div class="gapcol"></div>
+        <div class="key"><span class="m c-peach">)</span></div>
+        <div class="key"><span class="m c-peach">=</span></div>
+        <div class="key"><span class="m c-peach">&minus;</span></div>
+        <div class="key"><span class="m c-peach">+</span></div>
+        <div class="key"><span class="m c-peach">\</span></div>
+      </div>
+      <div class="row">
+        <div class="key"><span class="m c-peach">|</span></div>
+        <div class="key tint has-sub" style="--kc:var(--yellow)"><span class="m sm c-yellow">:=</span><span class="s c-yellow">MACRO</span></div>
+        <div class="key"><span class="m c-peach">&lt;</span></div>
+        <div class="key"><span class="m c-peach">&gt;</span></div>
+        <div class="key"><span class="m c-peach">_</span></div>
+        <div class="gapcol"></div>
+        <div class="key"><span class="m c-peach">:</span></div>
+        <div class="key"><span class="m c-peach">'</span></div>
+        <div class="key"><span class="m c-peach">"</span></div>
+        <div class="key"><span class="m c-peach">?</span></div>
+        <div class="key"><span class="m c-peach">/</span></div>
+      </div>
+      <div class="thumbs">
+        <div class="key idle" style="grid-column:2/4"><span class="m sm">ENT</span></div>
+        <div class="key idle" style="grid-column:4/6"><span class="m sm">TAB</span></div>
+        <div class="key held has-sub" style="grid-column:7/9"><span class="m sm">BSPC</span><span class="s">HELD</span></div>
+        <div class="key idle" style="grid-column:9/11"><span class="m sm">SPC</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------------- NAV ---------------- -->
+  <div class="layer" style="--accent:var(--blue)">
+    <div class="lhead">
+      <div class="badge">4</div>
+      <div class="name">NAV</div>
+      <div class="pill">HOLD&nbsp; SPC</div>
+    </div>
+    <div class="board">
+      <div class="hands"><span class="l">WORKSPACES &middot; MODS &middot; EDIT</span><span class="r">ARROWS &middot; PAGING</span></div>
+      <div class="row">
+        <div class="key tint has-sub" style="--kc:var(--mauve)"><span class="m c-mauve">1</span><span class="s c-mauve">SUPER</span></div>
+        <div class="key tint has-sub" style="--kc:var(--mauve)"><span class="m c-mauve">2</span><span class="s c-mauve">SUPER</span></div>
+        <div class="key tint has-sub" style="--kc:var(--mauve)"><span class="m c-mauve">3</span><span class="s c-mauve">SUPER</span></div>
+        <div class="key tint has-sub" style="--kc:var(--mauve)"><span class="m c-mauve">4</span><span class="s c-mauve">SUPER</span></div>
+        <div class="key tint has-sub" style="--kc:var(--mauve)"><span class="m c-mauve">5</span><span class="s c-mauve">SUPER</span></div>
+        <div class="gapcol"></div>
+        <div class="key"><span class="m xs c-blue">HOME</span></div>
+        <div class="key"><span class="m xs c-blue">PGDN</span></div>
+        <div class="key"><span class="m xs c-blue">PGUP</span></div>
+        <div class="key"><span class="m xs c-blue">END</span></div>
+        <div class="key"><span class="m xs c-blue">INS</span></div>
+      </div>
+      <div class="row">
+        <div class="key tint" style="--kc:var(--gui)"><span class="m sm c-gui">GUI</span></div>
+        <div class="key tint" style="--kc:var(--alt)"><span class="m sm c-alt">ALT</span></div>
+        <div class="key tint" style="--kc:var(--shift)"><span class="m xs c-shift">SHIFT</span></div>
+        <div class="key tint" style="--kc:var(--ctrl)"><span class="m sm c-ctrl">CTRL</span></div>
+        <div class="key"><span class="m sm c-maroon">ESC</span></div>
+        <div class="gapcol"></div>
+        <div class="key"><span class="m ar c-blue">&#8592;</span></div>
+        <div class="key"><span class="m ar c-blue">&#8595;</span></div>
+        <div class="key"><span class="m ar c-blue">&#8593;</span></div>
+        <div class="key"><span class="m ar c-blue">&#8594;</span></div>
+        <div class="key"><span class="m sm c-red">DEL</span></div>
+      </div>
+      <div class="row">
+        <div class="key tint has-sub" style="--kc:var(--pink)"><span class="m xs c-pink">UNDO</span><span class="s c-sky">CTRL Z</span></div>
+        <div class="key tint has-sub" style="--kc:var(--pink)"><span class="m xs c-pink">CUT</span><span class="s c-sky">CTRL X</span></div>
+        <div class="key tint has-sub" style="--kc:var(--pink)"><span class="m xs c-pink">COPY</span><span class="s c-sky">CTRL C</span></div>
+        <div class="key tint has-sub" style="--kc:var(--pink)"><span class="m xs c-pink">PASTE</span><span class="s c-sky">CTRL V</span></div>
+        <div class="key tint has-sub" style="--kc:var(--pink)"><span class="m xs c-pink">REDO</span><span class="s c-sky">C-S-Z</span></div>
+        <div class="gapcol"></div>
+        <div class="key has-sub"><span class="m ar c-blue">&#8592;</span><span class="s c-sky">CTRL</span></div>
+        <div class="key has-sub"><span class="m xs c-red">BSPC</span><span class="s c-sky">CTRL</span></div>
+        <div class="key has-sub"><span class="m xs c-red">DEL</span><span class="s c-sky">CTRL</span></div>
+        <div class="key has-sub"><span class="m ar c-blue">&#8594;</span><span class="s c-sky">CTRL</span></div>
+        <div class="key none"></div>
+      </div>
+      <div class="thumbs">
+        <div class="key idle" style="grid-column:2/4"><span class="m sm">ENT</span></div>
+        <div class="key idle" style="grid-column:4/6"><span class="m sm">TAB</span></div>
+        <div class="key idle" style="grid-column:7/9"><span class="m sm">BSPC</span></div>
+        <div class="key held has-sub" style="grid-column:9/11"><span class="m sm">SPC</span><span class="s">HELD</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------------- UTIL ---------------- -->
+  <div class="layer" style="--accent:var(--red)">
+    <div class="lhead">
+      <div class="badge">5</div>
+      <div class="name">UTIL</div>
+      <div class="pill">HOLD&nbsp; ENT + SPC</div>
+    </div>
+    <div class="board">
+      <div class="hands"><span class="l">BLUETOOTH &middot; RGB &middot; FLASH</span><span class="r">MOUSE &middot; SCROLL</span></div>
+      <div class="row">
+        <div class="key tint" style="--kc:var(--teal)"><span class="m xs c-teal">BT 0</span></div>
+        <div class="key tint" style="--kc:var(--teal)"><span class="m xs c-teal">BT 1</span></div>
+        <div class="key tint" style="--kc:var(--teal)"><span class="m xs c-teal">BT 2</span></div>
+        <div class="key tint" style="--kc:var(--teal)"><span class="m xs c-teal">BT 3</span></div>
+        <div class="key tint has-sub" style="--kc:var(--maroon)"><span class="m xs c-maroon">BT</span><span class="s c-maroon">CLEAR</span></div>
+        <div class="gapcol"></div>
+        <div class="key has-sub"><span class="m ar c-lav">&#8592;</span><span class="s">SCROLL</span></div>
+        <div class="key has-sub"><span class="m ar c-lav">&#8595;</span><span class="s">SCROLL</span></div>
+        <div class="key has-sub"><span class="m ar c-lav">&#8593;</span><span class="s">SCROLL</span></div>
+        <div class="key has-sub"><span class="m ar c-lav">&#8594;</span><span class="s">SCROLL</span></div>
+        <div class="key"><span class="m xs c-sub">PRTSC</span></div>
+      </div>
+      <div class="row">
+        <div class="key tint has-sub" style="--kc:var(--pink)"><span class="m xs c-pink">RGB</span><span class="s c-pink">TOGGLE</span></div>
+        <div class="key tint has-sub" style="--kc:var(--pink)"><span class="m xs c-pink">RGB</span><span class="s c-pink">EFFECT</span></div>
+        <div class="key none"></div><div class="key none"></div><div class="key none"></div>
+        <div class="gapcol"></div>
+        <div class="key has-sub"><span class="m ar c-lav">&#8592;</span><span class="s">MOUSE</span></div>
+        <div class="key has-sub"><span class="m ar c-lav">&#8595;</span><span class="s">MOUSE</span></div>
+        <div class="key has-sub"><span class="m ar c-lav">&#8593;</span><span class="s">MOUSE</span></div>
+        <div class="key has-sub"><span class="m ar c-lav">&#8594;</span><span class="s">MOUSE</span></div>
+        <div class="key none"></div>
+      </div>
+      <div class="row">
+        <div class="key tint has-sub" style="--kc:var(--red)"><span class="m xs c-red">RESET</span><span class="s c-red">SOFT</span></div>
+        <div class="key tint has-sub" style="--kc:var(--red)"><span class="m xs c-red">BOOT</span><span class="s c-red">LOADER</span></div>
+        <div class="key none"></div><div class="key none"></div><div class="key none"></div>
+        <div class="gapcol"></div>
+        <div class="key tint has-sub" style="--kc:var(--lavender)"><span class="m xs c-lav">LEFT</span><span class="s c-lav">CLICK</span></div>
+        <div class="key tint has-sub" style="--kc:var(--lavender)"><span class="m xs c-lav">MID</span><span class="s c-lav">CLICK</span></div>
+        <div class="key tint has-sub" style="--kc:var(--lavender)"><span class="m xs c-lav">RIGHT</span><span class="s c-lav">CLICK</span></div>
+        <div class="key none"></div>
+        <div class="key none"></div>
+      </div>
+      <div class="thumbs">
+        <div class="key held has-sub" style="grid-column:2/4"><span class="m sm">ENT</span><span class="s">HELD</span></div>
+        <div class="key idle" style="grid-column:4/6"><span class="m sm">TAB</span></div>
+        <div class="key idle" style="grid-column:7/9"><span class="m sm">BSPC</span></div>
+        <div class="key held has-sub" style="grid-column:9/11"><span class="m sm">SPC</span><span class="s">HELD</span></div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ============================================================ -->
+<section class="notes">
+  <div class="note" style="--accent:var(--yellow)">
+    <h3>COMBOS &amp; MACROS</h3>
+    <dl>
+      <div><dt>, + .</dt> <dd>&mdash; Delete. One hand, 40&nbsp;ms window, BASE only, so the other hand can stay on the mouse.</dd></div>
+      <div><dt>D + K</dt> <dd>&mdash; Caps Word. Both home-row Shifts, 50&nbsp;ms, for <code>SCREAMING_SNAKE</code> names.</dd></div>
+      <div><dt>SYM &rarr; X</dt> <dd>&mdash; <code>:=</code> macro; Shift+; then = , which no single keycode gives.</dd></div>
+    </dl>
+  </div>
+  <div class="note" style="--accent:var(--mauve)">
+    <h3>HOME ROW MODS</h3>
+    <dl>
+      <div><dt>Tap the letter, hold the mod</dt> <dd>&mdash; on <code>A S D F</code> and <code>J K L ;</code>.</dd></div>
+      <div><dt>tap-preferred</dt> <dd>&mdash; 200&nbsp;ms term, 175&nbsp;ms quick-tap, 150&nbsp;ms prior-idle. Typing <code>for</code> can never emit Ctrl+O.</dd></div>
+      <div><dt>Cross-hand only</dt> <dd>&mdash; hold-trigger-on-release; a mod fires only for a key on the opposite hand or a thumb.</dd></div>
+      <div><dt>Shift is balanced</dt> <dd>&mdash; and drops prior-idle, so capitals survive mid-burst.</dd></div>
+    </dl>
+  </div>
+  <div class="note" style="--accent:var(--teal)">
+    <h3>THUMB LAYER-TAPS</h3>
+    <dl>
+      <div><dt>tap-preferred</dt> <dd>&mdash; 200&nbsp;ms term. Deleting then retyping cannot leak a SYM symbol.</dd></div>
+      <div><dt>220&nbsp;ms quick-tap</dt> <dd>&mdash; tap-then-hold repeats Backspace and Space; ZMK disables this by default.</dd></div>
+      <div><dt>No prior-idle</dt> <dd>&mdash; SYM stays reachable mid-word, e.g. <code>foo := bar{}</code>.</dd></div>
+      <div><dt>NUM + NAV &rarr; UTIL</dt> <dd>&mdash; conditional layer, so no thumb is spent on a rare layer.</dd></div>
+    </dl>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<footer class="legend">
+  <div class="item">
+    <div class="key"><span class="m">A</span></div>
+    <span>key output on tap</span>
+  </div>
+  <div class="item">
+    <div class="key tint has-sub" style="--kc:var(--gui)"><span class="m">A</span><span class="s c-gui">GUI</span></div>
+    <span>small caps = hold / modifier function</span>
+  </div>
+  <div class="item">
+    <div class="key none"></div>
+    <span>no binding on this layer</span>
+  </div>
+  <div class="item" style="--accent:var(--lavender)">
+    <div class="key held"><span class="m">T</span></div>
+    <span>thumb key held to reach this layer</span>
+  </div>
+  <div class="brand">CATPPUCCIN MOCHA</div>
+</footer>
+
+</body>
+</html>
