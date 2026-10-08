@@ -99,9 +99,22 @@
          * fast capital is over in about 120ms, so the term has to sit below
          * that: under the Shift hold, above a letter tap.
          *
-         * 130ms is the knob. Raise it if lingering on D or K emits stray
-         * capitals; lower it toward 110 if fast capitals still slip through.
-         * Fast-typing taps run 40-90ms, which is the floor it must clear.
+         * 130ms comes from the measured typing speed: 60wpm average, 80wpm in
+         * bursts. At 5 chars per word that is one keypress every 200ms, or
+         * every 150ms in a burst. Key dwell -- press to release -- is roughly
+         * 80-110ms and barely moves with speed, so the term is boxed in from
+         * both sides: it has to clear a ~110ms letter dwell, and stay under the
+         * 150ms burst interval or Shift can never engage mid-burst at all.
+         * 130ms is the middle of that 110-150ms window.
+         *
+         * The knob, in order of what you would notice: raise toward 145 if
+         * lingering on D or K emits stray capitals, lower toward 115 if fast
+         * capitals still slip through. Do not go above 150 -- that is the
+         * burst interval, past which mid-burst Shift stops working.
+         *
+         * Those same numbers are why require-prior-idle-ms cannot come back
+         * here. At 150-200ms between presses, a 150ms idle guard forces a tap
+         * on essentially every mid-burst keystroke.
          *
          * quick-tap-ms must stay under the term, or a Shift press within that
          * window of tapping the same key is forced to tap no matter how long
