@@ -556,7 +556,7 @@ body {
       <div class="pill">HOLD&nbsp; BSPC</div>
     </div>
     <div class="board">
-      <div class="hands"><span class="l">SHIFTED ROW &middot; BRACKETS</span><span class="r">OPERATORS &middot; QUOTES</span></div>
+      <div class="hands"><span class="l">BRACKETS &middot; MODS</span><span class="r">OPERATORS &middot; MODS</span></div>
       <div class="row">
         <div class="key"><span class="m c-peach">!</span></div>
         <div class="key"><span class="m c-peach">@</span></div>
@@ -571,17 +571,17 @@ body {
         <div class="key"><span class="m c-peach">~</span></div>
       </div>
       <div class="row">
-        <div class="key"><span class="m c-peach">[</span></div>
-        <div class="key"><span class="m c-peach">]</span></div>
-        <div class="key"><span class="m c-peach">{</span></div>
-        <div class="key"><span class="m c-peach">}</span></div>
+        <div class="key tint has-sub" style="--kc:var(--gui)"><span class="m c-peach">[</span><span class="s c-gui">GUI</span></div>
+        <div class="key tint has-sub" style="--kc:var(--alt)"><span class="m c-peach">]</span><span class="s c-alt">ALT</span></div>
+        <div class="key tint has-sub" style="--kc:var(--shift)"><span class="m c-peach">{</span><span class="s c-shift">SHIFT</span></div>
+        <div class="key tint has-sub" style="--kc:var(--ctrl)"><span class="m c-peach">}</span><span class="s c-ctrl">CTRL</span></div>
         <div class="key"><span class="m c-peach">(</span></div>
         <div class="gapcol"></div>
         <div class="key"><span class="m c-peach">)</span></div>
-        <div class="key"><span class="m c-peach">=</span></div>
-        <div class="key"><span class="m c-peach">&minus;</span></div>
-        <div class="key"><span class="m c-peach">+</span></div>
-        <div class="key"><span class="m c-peach">\</span></div>
+        <div class="key tint has-sub" style="--kc:var(--ctrl)"><span class="m c-peach">=</span><span class="s c-ctrl">CTRL</span></div>
+        <div class="key tint has-sub" style="--kc:var(--shift)"><span class="m c-peach">&minus;</span><span class="s c-shift">SHIFT</span></div>
+        <div class="key tint has-sub" style="--kc:var(--alt)"><span class="m c-peach">+</span><span class="s c-alt">ALT</span></div>
+        <div class="key tint has-sub" style="--kc:var(--gui)"><span class="m c-peach">\</span><span class="s c-gui">GUI</span></div>
       </div>
       <div class="row">
         <div class="key"><span class="m c-peach">|</span></div>
@@ -730,10 +730,10 @@ body {
   <div class="note" style="--accent:var(--mauve)">
     <h3>HOME ROW MODS</h3>
     <dl>
-      <div><dt>Tap the letter, hold the mod</dt> <dd>&mdash; on <code>A S D F</code> and <code>J K L ;</code>.</dd></div>
+      <div><dt>Tap the key, hold the mod</dt> <dd>&mdash; on <code>A S D F</code> / <code>J K L ;</code>, and mirrored on SYM.</dd></div>
       <div><dt>tap-preferred</dt> <dd>&mdash; 200&nbsp;ms term, 175&nbsp;ms quick-tap, 150&nbsp;ms prior-idle. Typing <code>for</code> can never emit Ctrl+O.</dd></div>
       <div><dt>Cross-hand only</dt> <dd>&mdash; hold-trigger-on-release; a mod fires only for a key on the opposite hand or a thumb.</dd></div>
-      <div><dt>Shift is balanced</dt> <dd>&mdash; and drops prior-idle, so capitals survive mid-burst.</dd></div>
+      <div><dt>Shift is balanced</dt> <dd>&mdash; and drops prior-idle, so capitals survive mid-burst. On SYM it is tap-preferred, to protect <code>{"</code>.</dd></div>
     </dl>
   </div>
   <div class="note" style="--accent:var(--teal)">

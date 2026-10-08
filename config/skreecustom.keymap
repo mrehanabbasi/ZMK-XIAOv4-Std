@@ -117,6 +117,50 @@
             bindings = <&kp>, <&kp>;
         };
 
+        /* SYM-layer home row mods.
+         *
+         * Separate behaviors from the BASE hrm_* pair, for two reasons.
+         *
+         * No require-prior-idle-ms: on SYM the "prior key" is usually the
+         * symbol you just typed, so a 150ms guard would silently swallow the
+         * modifier and emit a bracket instead.
+         *
+         * tap-preferred for Shift too, unlike BASE. Shift sits on "{", and
+         * balanced would turn {" (Go struct tags, JSON) into a lost brace plus
+         * a Shift+" that is still just ". The latency cost does not matter
+         * here: every shifted symbol already has its own SYM key, so these
+         * mods exist for shortcuts, not for typing.
+         */
+        shrm_l: sym_homerow_mods_left {
+            compatible = "zmk,behavior-hold-tap";
+            label = "SYM_HOMEROW_MODS_L";
+            #binding-cells = <2>;
+
+            flavor = "tap-preferred";
+            tapping-term-ms = <200>;
+            quick-tap-ms = <175>;
+
+            hold-trigger-key-positions = <KEYS_R KEYS_T>;
+            hold-trigger-on-release;
+
+            bindings = <&kp>, <&kp>;
+        };
+
+        shrm_r: sym_homerow_mods_right {
+            compatible = "zmk,behavior-hold-tap";
+            label = "SYM_HOMEROW_MODS_R";
+            #binding-cells = <2>;
+
+            flavor = "tap-preferred";
+            tapping-term-ms = <200>;
+            quick-tap-ms = <175>;
+
+            hold-trigger-key-positions = <KEYS_L KEYS_T>;
+            hold-trigger-on-release;
+
+            bindings = <&kp>, <&kp>;
+        };
+
         /* Thumb layer-taps.
          *
          * quick-tap-ms is what makes tap-then-hold repeat work on Backspace
@@ -282,9 +326,15 @@
         /* ------------------------------------------------------------------
          * SYM -- hold Backspace (right inner thumb)
          *
-         *   !  @  #  $  %  |  ^  &  *  `  ~
-         *   [  ]  {  }  (  |  )  =  -  +  \
-         *   |  := <  >  _  |  :  '  "  ?  /
+         *   !      @      #      $      %  |  ^  &      *      `      ~
+         *   [/GUI  ]/ALT  {/SFT  }/CTL  (  |  )  =/CTL  -/SFT  +/ALT  \/GUI
+         *   |      :=     <      >      _  |  :  '      "      ?      /
+         *
+         * Home row mods are mirrored on both hands, in the same order as BASE,
+         * so Ctrl+=, Ctrl+`, Alt+-, Ctrl+Shift+[ and friends all work. One
+         * hand would not be enough: the symbols fill both hands, so each hand
+         * needs the other hand's modifiers. Same-hand chords (left Ctrl with
+         * left "}") stay unreachable, which is the limitation BASE already has.
          *
          * Add &kp LT &kp MINUS as a macro here if you want a single-key <-
          * for channel ops.
@@ -295,8 +345,8 @@
 &trans  &trans      &trans      &trans      &trans      &trans        &trans      &trans      &trans      &trans      &trans      &trans
 &trans  &trans      &trans      &trans      &trans      &trans        &trans      &trans      &trans      &trans      &trans      &trans
 &trans  &kp EXCL    &kp AT      &kp HASH    &kp DLLR    &kp PRCNT     &kp CARET   &kp AMPS    &kp STAR    &kp GRAVE   &kp TILDE   &trans
-&trans  &kp LBKT    &kp RBKT    &kp LBRC    &kp RBRC    &kp LPAR      &kp RPAR    &kp EQUAL   &kp MINUS   &kp PLUS    &kp BSLH    &trans
-&trans  &kp PIPE    &go_assign  &kp LT      &kp GT      &kp UNDERSCORE  &kp COLON &kp SQT     &kp DQT     &kp QMARK   &kp FSLH    &trans
+&trans  &shrm_l LGUI LBKT  &shrm_l LALT RBKT  &shrm_l LSHFT LBRC  &shrm_l LCTRL RBRC  &kp LPAR        &kp RPAR   &shrm_r LCTRL EQUAL  &shrm_r RSHFT MINUS  &shrm_r RALT PLUS  &shrm_r RGUI BSLH  &trans
+&trans  &kp PIPE           &go_assign         &kp LT              &kp GT              &kp UNDERSCORE  &kp COLON  &kp SQT              &kp DQT              &kp QMARK          &kp FSLH           &trans
                     &trans      &trans                                                        &trans      &trans
                           &trans  &trans  &trans                  &trans  &trans  &trans
                           &trans  &trans  &trans                  &trans  &trans  &trans
