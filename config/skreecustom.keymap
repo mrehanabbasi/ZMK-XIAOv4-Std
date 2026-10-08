@@ -85,16 +85,35 @@
             bindings = <&kp>, <&kp>;
         };
 
-        /* Home row mods: SHIFT. No require-prior-idle-ms -- that setting
-         * always forces a tap, which is what was eating capitals mid-burst. */
+        /* Home row mods: SHIFT.
+         *
+         * No require-prior-idle-ms -- that setting always forces a tap, which
+         * is what was eating capitals mid-burst.
+         *
+         * tapping-term-ms is deliberately much shorter than the other home row
+         * mods. "balanced" only resolves to a hold once the other key has been
+         * pressed AND released while Shift is still down. Typing fast, you roll
+         * off Shift before releasing the letter, so the hold-tap sees its own
+         * release first and taps -- "dh" instead of "H". The only thing that
+         * rescues that case is the tapping-term timer firing first, and a whole
+         * fast capital is over in about 120ms, so the term has to sit below
+         * that: under the Shift hold, above a letter tap.
+         *
+         * 130ms is the knob. Raise it if lingering on D or K emits stray
+         * capitals; lower it toward 110 if fast capitals still slip through.
+         * Fast-typing taps run 40-90ms, which is the floor it must clear.
+         *
+         * quick-tap-ms must stay under the term, or a Shift press within that
+         * window of tapping the same key is forced to tap no matter how long
+         * it is held. */
         hrms_l: homerow_mods_shift_left {
             compatible = "zmk,behavior-hold-tap";
             label = "HOMEROW_MODS_SHIFT_L";
             #binding-cells = <2>;
 
             flavor = "balanced";
-            tapping-term-ms = <200>;
-            quick-tap-ms = <150>;
+            tapping-term-ms = <130>;
+            quick-tap-ms = <100>;
 
             hold-trigger-key-positions = <KEYS_R KEYS_T>;
             hold-trigger-on-release;
@@ -108,8 +127,8 @@
             #binding-cells = <2>;
 
             flavor = "balanced";
-            tapping-term-ms = <200>;
-            quick-tap-ms = <150>;
+            tapping-term-ms = <130>;
+            quick-tap-ms = <100>;
 
             hold-trigger-key-positions = <KEYS_L KEYS_T>;
             hold-trigger-on-release;
